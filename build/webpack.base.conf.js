@@ -1,5 +1,4 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const webpack = require('webpack');
 const _ = require('lodash');
 const path = require('path');
@@ -39,16 +38,6 @@ module.exports = {
         ],
       },
       {
-        test: /\.styl$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            { loader: 'css-loader' },
-            { loader: 'stylus-loader' },
-          ],
-        }),
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
@@ -80,10 +69,6 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
       minChunks: 3,
-    }),
-
-    new ExtractTextPlugin({
-      filename: '[name].[contenthash].css',
     }),
 
     new webpack.optimize.CommonsChunkPlugin({
