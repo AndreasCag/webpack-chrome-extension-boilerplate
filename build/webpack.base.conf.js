@@ -1,5 +1,8 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const webpack = require('webpack');
 const _ = require('lodash');
+const path = require('path');
 
 const resolve = require('../helpers/resolve');
 
@@ -17,21 +20,33 @@ module.exports = {
     ),
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].[hash].bundle.js',
+  },
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, '..', 'src'),
+      root: resolve('.'),
+      public: resolve('public'),
+    },
   },
   module: {
     rules: [
       {
         test: /\.pug$/,
-        use: 'pug-loader',
+        use: [
+          { loader: 'html-loader' },
+          { loader: 'pug-html-loader' },
+        ],
       },
       {
         test: /\.styl$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' },
-          { loader: 'stylus-loader' },
-        ],
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            { loader: 'css-loader' },
+            { loader: 'stylus-loader' },
+          ],
+        }),
       },
       {
         test: /\.js$/,
@@ -46,18 +61,53 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+              outputPath: '/public/',
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
+
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      minChunks: 3,
+    }),
+
+    new ExtractTextPlugin({
+      filename: '[name].[contenthash].css',
+    }),
+
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'manifest',
+      chunks: ['vendor'],
+    }),
+
     ..._.map(
       entryPoints,
       entryPoint => (
         new HtmlWebpackPlugin({
           template: resolve('src', 'pug', `${entryPoint}.pug`),
           filename: `${entryPoint}.html`,
-          chunks: [entryPoint],
+          chunks: ['manifest', 'vendor', entryPoint],
+          minify: {
+            removeComments: true,
+            collapseWhitespace: true,
+            removeAttributeQuotes: true,
+            // more options:
+            // https://github.com/kangax/html-minifier#options-quick-reference
+          },
         })
       ),
     ),
+
   ],
 };

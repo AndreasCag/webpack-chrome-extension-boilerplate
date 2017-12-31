@@ -12,8 +12,15 @@ const WebpackDevConfig = {
     path: serverPath,
   },
   devServer: {
-    contentBase: serverPath,
-    port: 9000,
+    contentBase: [
+      resolve('server-source'),
+      // @NOTE: resolve('src', 'pug') is used just for hot reloading
+      resolve('src', 'pug'),
+    ],
+    watchContentBase: true,
+    open: true,
+    port: 3000,
+    index: 'popup.html',
   },
   plugins: [
     new WriteFilePlugin(),
