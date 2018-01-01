@@ -17,6 +17,31 @@ const WebpackProdConfig = {
   module: {
     rules: [
       {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            styl: ExtractTextPlugin.extract({
+              use: [
+                { loader: 'css-loader' },
+                { loader: 'stylus-loader' },
+              ],
+              fallback: 'vue-style-loader',
+            }),
+          },
+          cssSourceMap: true,
+          // @NOTE: CHECK IT OUT.
+          // maybe because of this vue file's debugging is pretty painfull
+          cacheBusting: true,
+          transformToRequire: {
+            video: ['src', 'poster'],
+            source: 'src',
+            img: 'src',
+            image: 'xlink:href',
+          },
+        },
+      },
+      {
         test: /\.styl$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',

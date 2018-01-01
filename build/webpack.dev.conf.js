@@ -15,6 +15,34 @@ const WebpackDevConfig = {
   module: {
     rules: [
       {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            styl: [
+              'vue-style-loader',
+              'css-loader',
+              {
+                loader: 'stylus-loader',
+                options: {
+                  sourceMap: true,
+                },
+              },
+            ],
+          },
+          cssSourceMap: true,
+          // @NOTE: CHECK IT OUT.
+          // maybe because of this vue file's debugging is pretty painfull
+          cacheBusting: true,
+          transformToRequire: {
+            video: ['src', 'poster'],
+            source: 'src',
+            img: 'src',
+            image: 'xlink:href',
+          },
+        },
+      },
+      {
         test: /\.styl$/,
         use: [
           { loader: 'style-loader' },
